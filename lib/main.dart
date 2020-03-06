@@ -3,6 +3,7 @@ import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'dart:convert' show jsonDecode;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spotifydata/Connectors/UserService.dart';
 import 'package:spotifydata/SpotifyDataScreen.dart';
 
 import 'Resources/Colors.dart';
@@ -33,26 +34,11 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   int _counter = 0;
-  final clientID = "1e3423ef3dab4d67ab75bdf308b8b951";
-  final callbackUrl = "spotifydata";
 
-  void _authenticateSpotify() async {
+  void validateUser() async {
+    UserService userService = new UserService();
+    userService.authenticateSpotify();
     final sharedPreferences = await SharedPreferences.getInstance();
-    final url = Uri.https('accounts.spotify.com', '/authorize', {
-      'response_type': 'token',
-      'client_id': clientID,
-      'redirect_uri': 'spotifydata://callback',
-      'scope':
-          'user-read-private user-read-currently-playing user-top-read playlist-modify-public playlist-modify-private',
-    });
-    final result = await FlutterWebAuth.authenticate(
-        url: url.toString(), callbackUrlScheme: callbackUrl);
-    final token = Uri.parse(result);
-    String at = token.fragment;
-    at = "http://website/index.html?$at";
-    var accesstoken = Uri.parse(at).queryParameters['access_token'];
-    print(accesstoken);
-    sharedPreferences.setString('token', accesstoken);
     if (sharedPreferences.get('token') != null) {
       Navigator.push(
         context,
@@ -73,7 +59,7 @@ class _AuthPageState extends State<AuthPage> {
           children: <Widget>[
             Text('Click Button to login with Spotify'),
             RaisedButton(
-              onPressed: () => _authenticateSpotify(),
+              onPressed: () => validateUser(),
               child: Text('Sign In'),
               color: spotifyGreen,
             ),
