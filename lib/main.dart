@@ -17,6 +17,7 @@ class AuthToApp extends StatelessWidget {
       title: 'Spotify Data',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        fontFamily: "Sen",
       ),
       home: AuthPage(title: 'AuthPage'),
     );

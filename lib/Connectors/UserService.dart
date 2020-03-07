@@ -26,7 +26,6 @@ class UserService {
     String at = token.fragment;
     at = "http://website/index.html?$at";
     var accesstoken = Uri.parse(at).queryParameters['access_token'];
-    print(accesstoken);
     sharedPreferences.setString('token', accesstoken);
   }
 
@@ -39,7 +38,6 @@ class UserService {
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
     });
-    print(response.body);
     Map userMap = jsonDecode(response.body.toString());
     return User.fromJson(userMap);
   }

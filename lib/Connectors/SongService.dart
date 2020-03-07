@@ -1,10 +1,13 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spotifydata/Models/Song.dart';
 
 class SongService {
-  SongService() {}
+  SongService();
 
-  Future<void> getCurrentSong() async {
+  Future<Song> getCurrentSong() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final url = "https://api.spotify.com/v1/me/player/currently-playing";
     final token = sharedPreferences.get('token');
@@ -13,10 +16,13 @@ class SongService {
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
     });
-    print(response.body);
+    Map songMap = jsonDecode(response.body.toString());
+
+    Song song = Song.fromJson(songMap);
+    return song;
   }
 
-  Future<void> getTopSongs() async {
+  Future<List<Song>> getTopSongs() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final url = "https://api.spotify.com/v1/me/top/tracks";
     final token = sharedPreferences.get('token');
@@ -25,7 +31,14 @@ class SongService {
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
     });
-    print(response.body);
+    List<Song> topSongs = [];
+    Map songMap = jsonDecode(response.body.toString());
+    var songs = songMap['items'];
+    for (var song in songs) {
+      Song cSong = Song.fromJsonList(song);
+      topSongs.add(cSong);
+    }
+    return topSongs;
   }
 
   Future<void> getTopArtists() async {
