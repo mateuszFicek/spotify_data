@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/spotify-app-remote-release-0.7.0/spotify-app-remote-release-0.7.0.iml" filepath="$PROJECT_DIR$/spotify-app-remote-release-0.7.0/spotify-app-remote-release-0.7.0.iml" />
       <module fileurl="file://$PROJECT_DIR$/spotifydata.iml" filepath="$PROJECT_DIR$/spotifydata.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android/spotifydata_android.iml" filepath="$PROJECT_DIR$/android/spotifydata_android.iml" />
     </modules>
   </component>
 </project>

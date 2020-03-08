@@ -4,6 +4,7 @@ import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotifydata/Models/User.dart';
+// import 'package:spotify_sdk/spotify_sdk.dart';
 
 class UserService {
   final clientID = "1e3423ef3dab4d67ab75bdf308b8b951";
@@ -41,4 +42,14 @@ class UserService {
     Map userMap = jsonDecode(response.body.toString());
     return User.fromJson(userMap);
   }
+
+  // Future<void> getAuthenticationToken() async {
+  //   try {
+  //     var authenticationToken = await SpotifySdk.getAuthenticationToken(
+  //         clientId: "", redirectUrl: "");
+  //     print("Got a token: $authenticationToken");
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // }
 }
