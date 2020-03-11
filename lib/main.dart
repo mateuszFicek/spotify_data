@@ -45,9 +45,15 @@ class _AuthPageState extends State<AuthPage> {
     if (sharedPreferences.get('token') != null) {
       User user = await userService.getUserProfile();
       sharedPreferences.setString('user', user.displayName);
+      sharedPreferences.setString('id', user.id);
+      User currentUser = await userService.getUserProfile();
+
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => SpotifyDataScreen()),
+        MaterialPageRoute(
+            builder: (context) => SpotifyDataScreen(
+                  currentUser: currentUser,
+                )),
       );
     }
   }
@@ -55,35 +61,50 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColorDarker,
+      backgroundColor: mainPageBackground,
       body: Center(
-        child: Container(
-          alignment: Alignment(0.0, 0.0),
-          height: 300,
-          width: 300,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(200),
-              color: backgroundColorDarker,
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: bevel,
-                  offset: -blurOffset,
-                  color: backgroundColorDarkerShadow1,
-                ),
-                BoxShadow(
-                    blurRadius: bevel,
-                    offset: blurOffset,
-                    color: backgroundColorDarkerShadow2)
-              ]),
-          child: Center(
-            child: IconButton(
-              iconSize: 150,
-              icon: Icon(
-                Icons.play_arrow,
-              ),
-              onPressed: () => validateUser(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Press play',
+              style: TextStyle(color: Colors.white, fontSize: 30),
             ),
-          ),
+            SizedBox(height: 10.0),
+            Text('to continue with Spotify',
+                style: TextStyle(color: Colors.white, fontSize: 20)),
+            SizedBox(height: 50.0),
+            Container(
+              alignment: Alignment(0.0, 0.0),
+              height: 300,
+              width: 300,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(200),
+                  color: mainPageBackground,
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: bevel,
+                      offset: -blurOffset,
+                      color: backgroundColorDarkerShadow1,
+                    ),
+                    BoxShadow(
+                        blurRadius: bevel,
+                        offset: blurOffset,
+                        color: backgroundColorDarkerShadow2)
+                  ]),
+              child: Center(
+                child: IconButton(
+                  iconSize: 150,
+                  icon: Icon(
+                    Icons.play_arrow,
+                    color: Colors.white24,
+                  ),
+                  onPressed: () => validateUser(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

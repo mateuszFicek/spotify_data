@@ -11,6 +11,10 @@ import 'package:spotifydata/TopSongsScreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SpotifyDataScreen extends StatefulWidget {
+  final User currentUser;
+
+  SpotifyDataScreen({Key key, @required this.currentUser}) : super(key: key);
+
   @override
   _SpotifyDataScreenState createState() => _SpotifyDataScreenState();
 }
@@ -74,7 +78,16 @@ class _SpotifyDataScreenState extends State<SpotifyDataScreen> {
         ),
         body: !isLoaded
             ? Center(child: CircularProgressIndicator())
-            : [InfoScreen(), TopSongsScreen(), TopArtistsScreen()]
-                .elementAt(_selectedIndex));
+            : [
+                InfoScreen(
+                  currentUser: widget.currentUser,
+                ),
+                TopSongsScreen(
+                  currentUser: widget.currentUser,
+                ),
+                TopArtistsScreen(
+                  currentUser: widget.currentUser,
+                )
+              ].elementAt(_selectedIndex));
   }
 }

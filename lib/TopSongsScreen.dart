@@ -10,6 +10,8 @@ import 'Models/User.dart';
 import 'Resources/CustomShapeClipper.dart';
 
 class TopSongsScreen extends StatefulWidget {
+  final User currentUser;
+  TopSongsScreen({Key key, @required this.currentUser}) : super(key: key);
   @override
   _TopSongsScreenState createState() => _TopSongsScreenState();
 }
@@ -28,59 +30,35 @@ class _TopSongsScreenState extends State<TopSongsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double statusBarHeight = MediaQuery.of(context).padding.top;
     return !isLoaded
         ? Center(child: CircularProgressIndicator())
-        : Center(
+        : Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [greenFontColor, backgroundColorDarker],
+                    begin: Alignment.topLeft,
+                    end: FractionalOffset(0.3, 0.2))),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                userInfoWidget(),
+                SizedBox(height: 1.5 * statusBarHeight),
+                Text(
+                  'Your top songs',
+                  style: TextStyle(color: Colors.white, fontSize: 40),
+                ),
                 spotifyDataWidget(context),
               ],
             ),
           );
   }
 
-  Widget userInfoWidget() {
-    return ClipPath(
-      clipper: CustomShapeClipper(),
-      child: Container(
-        color: fontColor,
-        height: MediaQuery.of(context).size.height * 0.2,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-              height: 50,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Witaj',
-                      style: TextStyle(fontSize: 28, color: greenFontColor)),
-                  !isLoaded
-                      ? Text('User')
-                      : Text(
-                          user,
-                          style: TextStyle(color: Colors.white, fontSize: 48),
-                        ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget spotifyDataWidget(BuildContext context) {
+    var aspect = MediaQuery.of(context).devicePixelRatio;
+
     return Container(
-      height: MediaQuery.of(context).size.height * 0.73,
+      height: MediaQuery.of(context).size.height * 0.825 * (2.375) / (aspect),
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: <Widget>[
@@ -137,11 +115,15 @@ class _TopSongsScreenState extends State<TopSongsScreen> {
               ),
               title: Text(
                 song.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: Colors.white70, fontWeight: FontWeight.bold),
               ),
-              subtitle:
-                  Text(song.artists, style: TextStyle(color: greenFontColor)),
+              subtitle: Text(song.artists + " - " + song.albumName,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(color: greenFontColor)),
               trailing: IconButton(
                 icon: Icon(Icons.play_arrow, color: greenFontColor, size: 30.0),
                 onPressed: () {

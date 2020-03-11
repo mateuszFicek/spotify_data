@@ -5,12 +5,15 @@ class Song {
   String name;
   String uri;
   String imageURL;
+  String albumName;
 
   Song();
 
   Song.fromJson(Map<String, dynamic> json) {
     var item = json['item'];
     var arts = item['artists'];
+    var album = item['album'];
+    albumName = album['name'];
     external_urls = item['external_urls'];
     external_urls = external_urls['spotify'];
     id = item['id'];
@@ -24,8 +27,9 @@ class Song {
         counter++;
       }
     }
-    var album = item['album'];
-    var images = album['images'];
+    var img = album['images'];
+    img = img[1];
+    imageURL = img['url'];
   }
 
   Song.fromJsonList(Map<String, dynamic> json) {
@@ -44,6 +48,7 @@ class Song {
     name = json['name'];
     uri = json['uri'];
     var album = json['album'];
+    albumName = album['name'];
     var images = album['images'];
     var image = images[1];
     imageURL = image['url'];

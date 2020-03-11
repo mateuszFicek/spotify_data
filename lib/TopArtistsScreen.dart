@@ -13,6 +13,8 @@ import 'Models/User.dart';
 import 'Resources/CustomShapeClipper.dart';
 
 class TopArtistsScreen extends StatefulWidget {
+  final User currentUser;
+  TopArtistsScreen({Key key, @required this.currentUser}) : super(key: key);
   @override
   _TopArtistsScreenState createState() => _TopArtistsScreenState();
 }
@@ -31,57 +33,34 @@ class _TopArtistsScreenState extends State<TopArtistsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double statusBarHeight = MediaQuery.of(context).padding.top;
     return !isLoaded
         ? Center(child: CircularProgressIndicator())
-        : Center(
+        : Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [greenFontColor, backgroundColorDarker],
+                    begin: Alignment.topLeft,
+                    end: FractionalOffset(0.3, 0.2))),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                userInfoWidget(),
+                SizedBox(height: 1.5 * statusBarHeight),
+                Text(
+                  'Your top artists',
+                  style: TextStyle(color: Colors.white, fontSize: 40),
+                ),
                 spotifyDataWidget(context),
               ],
             ),
           );
   }
 
-  Widget userInfoWidget() {
-    return ClipPath(
-      clipper: CustomShapeClipper(),
-      child: Container(
-        color: fontColor,
-        height: MediaQuery.of(context).size.height * 0.2,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-              height: 50,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Witaj',
-                      style: TextStyle(fontSize: 28, color: greenFontColor)),
-                  Text(
-                    user,
-                    style: TextStyle(color: Colors.white, fontSize: 48),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget spotifyDataWidget(BuildContext context) {
+    var aspect = MediaQuery.of(context).devicePixelRatio;
     return Container(
-      height: MediaQuery.of(context).size.height * 0.73,
+      height: MediaQuery.of(context).size.height * 0.825 * (2.375) / (aspect),
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: <Widget>[
@@ -99,7 +78,7 @@ class _TopArtistsScreenState extends State<TopArtistsScreen> {
                     itemCount: snapshot.data.length,
                     itemBuilder: (context, index) {
                       Artist artist = snapshot.data[index];
-                      return songTile(artist);
+                      return artistTile(artist);
                     });
               },
             ),
@@ -118,7 +97,7 @@ class _TopArtistsScreenState extends State<TopArtistsScreen> {
       });
   }
 
-  Widget songTile(Artist artist) {
+  Widget artistTile(Artist artist) {
     return Card(
         color: Colors.white10,
         elevation: 0.0,
@@ -126,27 +105,29 @@ class _TopArtistsScreenState extends State<TopArtistsScreen> {
         child: Container(
           decoration: BoxDecoration(color: cardColor),
           child: ListTile(
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              leading: Container(
-                padding: EdgeInsets.only(right: 12.0),
-                decoration: new BoxDecoration(
-                    border: new Border(
-                        right:
-                            new BorderSide(width: 1.0, color: Colors.white24))),
-                child: Image.network(artist.imageURL),
-              ),
-              title: Text(
-                artist.name,
-                style: TextStyle(
-                    color: Colors.white70, fontWeight: FontWeight.bold),
-              ),
-              subtitle:
-                  Text(artist.name, style: TextStyle(color: greenFontColor)),
-              trailing: IconButton(
-                icon: Icon(Icons.play_arrow, color: greenFontColor, size: 30.0),
-                onPressed: () {},
-              )),
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            leading: Container(
+              padding: EdgeInsets.only(right: 12.0),
+              decoration: new BoxDecoration(
+                  border: new Border(
+                      right:
+                          new BorderSide(width: 1.0, color: Colors.white24))),
+              child: Image.network(artist.imageURL),
+            ),
+            title: Text(
+              artist.name,
+              overflow: TextOverflow.ellipsis,
+              style:
+                  TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+            ),
+            // subtitle:
+            //     Text(artist.name, style: TextStyle(color: greenFontColor)),
+            // trailing: IconButton(
+            //   icon: Icon(Icons.play_arrow, color: greenFontColor, size: 30.0),
+            //   onPressed: () {},
+            // )
+          ),
         ));
   }
 

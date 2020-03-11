@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotifydata/Models/Artist.dart';
+import 'package:spotifydata/Models/Playlist.dart';
 import 'package:spotifydata/Models/Song.dart';
 
 class SongService {
@@ -18,7 +19,6 @@ class SongService {
       'Authorization': 'Bearer $token',
     });
     Map songMap = jsonDecode(response.body.toString());
-
     Song song = Song.fromJson(songMap);
     return song;
   }
@@ -61,5 +61,47 @@ class SongService {
       topArtists.add(cArtist);
     }
     return topArtists;
+  }
+
+  Future<String> addSongToPlaylist(Song song, Playlist playlist) async {
+    bool isAlreadyAdded = await checkIfSongIsOnPlaylist(song, playlist);
+    if (isAlreadyAdded) return "Song is already on your playlist";
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final playID = playlist.id;
+    final songID = song.id;
+    final playlistName = playlist.name;
+    var sUri = ["spotify:track:$songID"];
+    var songURI = {};
+    songURI["uris"] = sUri;
+    String jsonBody = json.encode(songURI);
+    final uri = Uri.https("api.spotify.com", "/v1/playlists/$playID/tracks");
+    final token = sharedPreferences.get('token');
+    final response = await http.post(uri, body: jsonBody, headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode.toString() == 201.toString()) {
+      return "Song was added to $playlistName";
+    }
+  }
+
+  Future<bool> checkIfSongIsOnPlaylist(Song song, Playlist playlist) async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final playID = playlist.id;
+    final uri = Uri.https("api.spotify.com", "/v1/playlists/$playID/tracks");
+    final token = sharedPreferences.get('token');
+    final response = await http.get(uri, headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
+    Map songMap = jsonDecode(response.body.toString());
+    var songs = songMap['items'];
+    for (var i in songs) {
+      var current = i['track']['id'];
+      if (current == song.id) return true;
+    }
+    return false;
   }
 }
