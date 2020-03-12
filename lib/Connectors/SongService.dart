@@ -86,6 +86,33 @@ class SongService {
     }
   }
 
+  Future<String> addBatchSongToPlaylist(Playlist playlist) async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final playID = playlist.id;
+    final playlistName = playlist.name;
+    List<Song> songsToAdd = await getTopSongs();
+    String uriSongs = "";
+    var uris = [];
+    for (int i = 0; i < songsToAdd.length; i++) {
+      var songId = songsToAdd[i].id;
+      uris.add("spotify:track:$songId");
+    }
+    var songURI = {};
+    songURI["uris"] = uris;
+    String jsonBody = json.encode(songURI);
+    final uri = Uri.https("api.spotify.com", "/v1/playlists/$playID/tracks");
+    final token = sharedPreferences.get('token');
+    final response = await http.post(uri, body: jsonBody, headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
+    print("BODY::: " + response.body);
+    if (response.statusCode.toString() == 201.toString()) {
+      return "Song was added to $playlistName";
+    }
+  }
+
   Future<bool> checkIfSongIsOnPlaylist(Song song, Playlist playlist) async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final playID = playlist.id;

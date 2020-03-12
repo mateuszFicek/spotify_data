@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spotifydata/Connectors/PlaylistService.dart';
+import 'package:spotifydata/Models/Playlist.dart';
 import 'package:spotifydata/Resources/Colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -22,6 +24,7 @@ class _TopSongsScreenState extends State<TopSongsScreen> {
   Song currentSong;
   bool isLoaded = false;
   SongService songService = new SongService();
+  PlaylistService playlistService = new PlaylistService();
   @override
   void initState() {
     super.initState();
@@ -44,9 +47,37 @@ class _TopSongsScreenState extends State<TopSongsScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 SizedBox(height: 1.5 * statusBarHeight),
-                Text(
-                  'Your top songs',
-                  style: TextStyle(color: Colors.white, fontSize: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    SizedBox(width: 2),
+                    Text(
+                      'Your top songs',
+                      style: TextStyle(color: Colors.white, fontSize: 40),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: greenFontColor,
+                      ),
+                      width: 60,
+                      height: 60,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        ),
+                        onPressed: () async {
+                          Playlist playlist = await playlistService
+                              .createPlaylist("Your top songs")
+                              .then((onValue) {
+                            songService.addBatchSongToPlaylist(onValue);
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 2),
+                  ],
                 ),
                 spotifyDataWidget(context),
               ],
@@ -58,7 +89,7 @@ class _TopSongsScreenState extends State<TopSongsScreen> {
     var aspect = MediaQuery.of(context).devicePixelRatio;
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.825 * (2.375) / (aspect),
+      height: MediaQuery.of(context).size.height * 0.8145 * (2.375) / (aspect),
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: <Widget>[

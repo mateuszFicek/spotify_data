@@ -50,4 +50,21 @@ class PlaylistService {
     }
     return playlists;
   }
+
+  Future<Playlist> createPlaylist(String name) async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final id = sharedPreferences.get('id');
+    final url = "https://api.spotify.com/v1/users/$id/playlists";
+    final token = sharedPreferences.get('token');
+    String json = '{"name": "$name"}';
+    final response = await http.post(url, body: json, headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
+    Map playlistMap = jsonDecode(response.body);
+    Playlist cPlaylist = Playlist.fromJson(playlistMap);
+    print("PLAYLIST ID " + cPlaylist.id);
+    return cPlaylist;
+  }
 }
