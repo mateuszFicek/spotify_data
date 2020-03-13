@@ -60,7 +60,13 @@ class _TopArtistsScreenState extends State<TopArtistsScreen> {
   Widget spotifyDataWidget(BuildContext context) {
     var aspect = MediaQuery.of(context).devicePixelRatio;
     return Container(
-      height: MediaQuery.of(context).size.height * 0.825 * (2.375) / (aspect),
+      height: aspect > 3.5
+          ? MediaQuery.of(context).size.height *
+              0.825 *
+              1.5 *
+              (2.375) /
+              (aspect)
+          : MediaQuery.of(context).size.height * 0.825 * (2.375) / (aspect),
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: <Widget>[
@@ -105,34 +111,33 @@ class _TopArtistsScreenState extends State<TopArtistsScreen> {
         child: Container(
           decoration: BoxDecoration(color: cardColor),
           child: ListTile(
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-            leading: Container(
-              padding: EdgeInsets.only(right: 12.0),
-              decoration: new BoxDecoration(
-                  border: new Border(
-                      right:
-                          new BorderSide(width: 1.0, color: Colors.white24))),
-              child: Image.network(artist.imageURL),
-            ),
-            title: Text(
-              artist.name,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
-            ),
-            // subtitle:
-            //     Text(artist.name, style: TextStyle(color: greenFontColor)),
-            // trailing: IconButton(
-            //   icon: Icon(Icons.play_arrow, color: greenFontColor, size: 30.0),
-            //   onPressed: () {},
-            // )
-          ),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              leading: Container(
+                padding: EdgeInsets.only(right: 12.0),
+                decoration: new BoxDecoration(
+                    border: new Border(
+                        right:
+                            new BorderSide(width: 1.0, color: Colors.white24))),
+                child: Image.network(artist.imageURL),
+              ),
+              title: Text(
+                artist.name,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: Colors.white70, fontWeight: FontWeight.bold),
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.person, color: greenFontColor, size: 30.0),
+                onPressed: () {
+                  _launchURL(artist);
+                },
+              )),
         ));
   }
 
-  _launchURL(Song song) async {
-    var url = song.external_urls;
+  _launchURL(var toLaunch) async {
+    var url = toLaunch.external_urls;
     if (await canLaunch(url)) {
       await launch(url, forceSafariVC: false);
     } else {

@@ -42,14 +42,4 @@ class UserService {
     Map userMap = jsonDecode(response.body.toString());
     return User.fromJson(userMap);
   }
-
-  // Future<void> getAuthenticationToken() async {
-  //   try {
-  //     var authenticationToken = await SpotifySdk.getAuthenticationToken(
-  //         clientId: "", redirectUrl: "");
-  //     print("Got a token: $authenticationToken");
-  //   } catch (e) {
-  //     print(e.toString());
-  //   }
-  // }
 }

@@ -10,6 +10,7 @@ import 'Connectors/UserService.dart';
 import 'Models/Song.dart';
 import 'Models/User.dart';
 import 'Resources/CustomShapeClipper.dart';
+import 'package:flutter/services.dart';
 
 class TopSongsScreen extends StatefulWidget {
   final User currentUser;
@@ -33,6 +34,10 @@ class _TopSongsScreenState extends State<TopSongsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     double statusBarHeight = MediaQuery.of(context).padding.top;
     return !isLoaded
         ? Center(child: CircularProgressIndicator())
@@ -60,8 +65,8 @@ class _TopSongsScreenState extends State<TopSongsScreen> {
                         shape: BoxShape.circle,
                         color: greenFontColor,
                       ),
-                      width: 60,
-                      height: 60,
+                      width: 50,
+                      height: 50,
                       child: IconButton(
                         icon: Icon(
                           Icons.add,
@@ -89,7 +94,13 @@ class _TopSongsScreenState extends State<TopSongsScreen> {
     var aspect = MediaQuery.of(context).devicePixelRatio;
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8145 * (2.375) / (aspect),
+      height: aspect > 3.5
+          ? MediaQuery.of(context).size.height *
+              0.825 *
+              1.5 *
+              (2.375) /
+              (aspect)
+          : MediaQuery.of(context).size.height * 0.824 * (2.375) / (aspect),
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: <Widget>[

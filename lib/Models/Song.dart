@@ -6,6 +6,7 @@ class Song {
   String uri;
   String imageURL;
   String albumName;
+  String mainArtistID;
 
   Song();
 
@@ -22,6 +23,7 @@ class Song {
     var counter = 0;
     for (var art in arts) {
       if (counter > 0) artists += ", ";
+      if (counter == 0) mainArtistID = art['id'];
       if (art['name'] != null) {
         artists += art['name'].toString();
         counter++;

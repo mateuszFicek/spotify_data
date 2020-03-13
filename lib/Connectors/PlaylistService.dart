@@ -64,7 +64,6 @@ class PlaylistService {
     });
     Map playlistMap = jsonDecode(response.body);
     Playlist cPlaylist = Playlist.fromJson(playlistMap);
-    print("PLAYLIST ID " + cPlaylist.id);
     return cPlaylist;
   }
 }

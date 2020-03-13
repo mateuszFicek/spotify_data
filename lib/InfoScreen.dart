@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotifydata/Connectors/PlaylistService.dart';
+import 'package:spotifydata/Models/Artist.dart';
 import 'package:spotifydata/Models/Playlist.dart';
 import 'package:spotifydata/Resources/CustomShapeClipper.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,6 +28,8 @@ class _InfoScreenState extends State<InfoScreen> {
   var user;
   List<Song> topSongs;
   List<Playlist> playlists;
+  List<Artist> relatedArtists;
+  List<Song> relatedSongs;
   Song currentSong;
   bool isLoaded = false;
   bool isDataLoaded = false;
@@ -107,84 +112,311 @@ class _InfoScreenState extends State<InfoScreen> {
 
   Widget showData() {
     var aspect = MediaQuery.of(context).devicePixelRatio;
+    var width = MediaQuery.of(context).size.width / 2.25;
 
     return !isDataLoaded
         ? Container()
-        : Container(
-            height:
-                MediaQuery.of(context).size.height * 0.75 * (2.375) / (aspect),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        'Now playing ',
+        : Expanded(
+            // height:
+            //     MediaQuery.of(context).size.height * 0.75 * (2.375) / (aspect),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'Now playing ',
+                          style: textStyle(),
+                        ),
+                        SizedBox(
+                          height: 6,
+                        ),
+                        currentSong.name == null
+                            ? Text(
+                                'Start listening...',
+                                style: textStyle(),
+                              )
+                            : songTile(currentSong),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Text('Add current song to playlist', style: textStyle()),
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: new Theme(
+                          data: Theme.of(context).copyWith(
+                            canvasColor: backgroundColorDarker,
+                          ),
+                          child: dropdownPlaylistMenu()),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: greenFontColor,
+                          ),
+                          width: 50,
+                          height: 50,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                            onPressed: () async {
+                              var x;
+                              if (chosenPlaylist == null)
+                                x = "Choose your playlist";
+                              else if (currentSong == null)
+                                x = "Start listening ";
+                              else
+                                x = await songService.addSongToPlaylist(
+                                    currentSong, chosenPlaylist);
+
+                              _showToast(context, x);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        "Similar songs and artists",
                         style: textStyle(),
                       ),
-                      SizedBox(
-                        height: 6,
-                      ),
-                      currentSong.name == null
-                          ? Text(
-                              'Start listening...',
-                              style: textStyle(),
-                            )
-                          : songTile(currentSong),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Text('Add current song to playlist', style: textStyle()),
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: new Theme(
-                        data: Theme.of(context).copyWith(
-                          canvasColor: backgroundColorDarker,
-                        ),
-                        child: dropdownPlaylistMenu()),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: greenFontColor,
-                        ),
-                        width: 60,
-                        height: 60,
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.add,
-                            color: Colors.white,
+                    ),
+                    SizedBox(
+                      height: 6,
+                    ),
+                    !isDataLoaded
+                        ? Container()
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              InkWell(
+                                onTap: () => _launchURL(relatedSongs[0]),
+                                child: Container(
+                                  height: width,
+                                  width: width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                              image: NetworkImage(
+                                                  relatedSongs[0].imageURL),
+                                              fit: BoxFit.cover)),
+                                      child: ClipRRect(
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                              sigmaX: 0.5, sigmaY: 0.5),
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            color: backgroundColorDarker
+                                                .withOpacity(0.5),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                Text(
+                                                  relatedSongs[0].name,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 28,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                Text(
+                                                  relatedSongs[0].artists,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                  onTap: () => _launchURL(relatedSongs[1]),
+                                  child: Container(
+                                    height: width,
+                                    width: width,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                                image: NetworkImage(
+                                                    relatedSongs[1].imageURL),
+                                                fit: BoxFit.cover)),
+                                        child: ClipRRect(
+                                          child: BackdropFilter(
+                                            filter: ImageFilter.blur(
+                                                sigmaX: 0.5, sigmaY: 0.5),
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              color: backgroundColorDarker
+                                                  .withOpacity(0.5),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Text(
+                                                    relatedSongs[1].name,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 28,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  Text(
+                                                    relatedSongs[1].artists,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )),
+                            ],
                           ),
-                          onPressed: () async {
-                            var x;
-                            if (chosenPlaylist == null)
-                              x = "Choose your playlist";
-                            else if (currentSong == null)
-                              x = "Start listening ";
-                            else
-                              x = await songService.addSongToPlaylist(
-                                  currentSong, chosenPlaylist);
-
-                            _showToast(context, x);
-                          },
-                        ),
-                      ),
-                    ],
-                  )
-                ],
+                    !isDataLoaded
+                        ? Container()
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              InkWell(
+                                onTap: () => _launchURL(relatedArtists[0]),
+                                child: Container(
+                                  height: width,
+                                  width: width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                              image: NetworkImage(
+                                                  relatedArtists[0].imageURL),
+                                              fit: BoxFit.cover)),
+                                      child: ClipRRect(
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                              sigmaX: 0.5, sigmaY: 0.5),
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            color: backgroundColorDarker
+                                                .withOpacity(0.5),
+                                            child: Text(
+                                              relatedArtists[0].name,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 28,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                  onTap: () => _launchURL(relatedArtists[1]),
+                                  child: Container(
+                                    height: width,
+                                    width: width,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                                image: NetworkImage(
+                                                    relatedArtists[1].imageURL),
+                                                fit: BoxFit.cover)),
+                                        child: ClipRRect(
+                                          child: BackdropFilter(
+                                            filter: ImageFilter.blur(
+                                                sigmaX: 0.5, sigmaY: 0.5),
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              color: backgroundColorDarker
+                                                  .withOpacity(0.5),
+                                              child: Text(
+                                                relatedArtists[1].name,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 28,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )),
+                            ],
+                          )
+                  ],
+                ),
               ),
             ),
           );
@@ -202,6 +434,9 @@ class _InfoScreenState extends State<InfoScreen> {
   void fetchCurrentData() async {
     currentSong = await songService.getCurrentSong();
     playlists = await playlistService.getAllPlaylists();
+    relatedArtists = await songService.getArtistsRelatedToCurrent(currentSong);
+    relatedSongs = await songService.getSongsRelatedToCurrent(currentSong);
+
     setState(() {
       isDataLoaded = true;
     });
@@ -271,8 +506,8 @@ class _InfoScreenState extends State<InfoScreen> {
     );
   }
 
-  _launchURL(Song song) async {
-    var url = song.external_urls;
+  _launchURL(var toLaunch) async {
+    var url = toLaunch.external_urls;
     if (await canLaunch(url)) {
       await launch(url, forceSafariVC: false);
     } else {
