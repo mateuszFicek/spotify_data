@@ -111,14 +111,11 @@ class _InfoScreenState extends State<InfoScreen> {
   }
 
   Widget showData() {
-    var aspect = MediaQuery.of(context).devicePixelRatio;
     var width = MediaQuery.of(context).size.width / 2.25;
 
     return !isDataLoaded
         ? Container()
         : Expanded(
-            // height:
-            //     MediaQuery.of(context).size.height * 0.75 * (2.375) / (aspect),
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.only(left: 10.0, right: 10.0),
